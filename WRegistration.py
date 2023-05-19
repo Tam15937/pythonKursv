@@ -1,31 +1,73 @@
 import PySimpleGUI as win
 
+import WFont
 import WLogin
+import WUser
 
 win.theme('DarkAmber')
+winfont = WFont.winfont
 
 
-def wirteData(val):
-    f = open('resourses/usersLogin.txt', 'r', encoding="UTF-8")
-    f.writelines(val)
+def getData(security):
+    f = open('resourses/usersData.txt', encoding="UTF-8")
+    data = f.readlines()
     f.close()
+    for i in data:
+        if i.removesuffix('\n').split('+')[0] == security:
+            return i.removesuffix('\n').split('+')[1]
 
 
-def makeRegistratuon():
+def writeData(security, userData):
+    f = open('resourses/usersData.txt', encoding="UTF-8")
+    data = f.readlines()
+    f.close()
+    securityData = []
+    usersData = []
+    for i in data:
+        i = i.removesuffix('\n').split('+')
+        temp = i[0]
+        securityData.append(temp)
+        temp = i[1].split(':')
+        usersData.append(temp)
+    if security in securityData:
+        win.popup_quick_message('Такой пользователь уже существует.', font=winfont)
+        return False
+    else:
+        names = [i[1] for i in usersData]
+        lastnames = [i[2] for i in usersData]
+        tempUserData = userData.split(':')
+        login = security.split(':')[0]
+        password = security.split(':')[1]
+
+        firstname = tempUserData[0]
+        name = tempUserData[1]
+        lastname = tempUserData[2]
+        phone = tempUserData[3]
+        address = tempUserData[4]
+        if name not in names or lastname not in lastnames:
+            f = open('resourses/usersData.txt', 'a+', encoding="UTF-8")
+            f.write(security + '+' + userData + '\n')
+            f.close()
+            return True
+        else:
+            win.popup_quick_message('Такой пользователь уже существует.', font=winfont)
+
+
+def makeWindow():
     layout = [
-        [win.Text('Фамилия', font=36, expand_x=True, expand_y=True)],
-        [win.InputText('', k='фам', font=36)],
-        [win.Text('Имя', font=36)],
-        [win.InputText('', k='имя', font=36)],
-        [win.Text('Отчество', font=36)],
-        [win.InputText('', k='отч', font=36)],
-        [win.Text('Номер телефона', font=36)],
-        [win.InputText('', k='тел', font=36)],
-        [win.Text('Пароль', font=36)],
-        [win.InputText('', k='пароль', font=36)],
-        [win.Text('Логин', font=36)],
-        [win.InputText('', k='логин', font=36)],
-        [win.Button('Регистрация', font=36), win.Button('Назад', font=36)]
+        [win.Text('Фамилия', font=winfont, expand_x=True, expand_y=True), win.InputText('', k='фам', font=winfont)],
+        [win.Text('Имя', font=winfont),
+         win.InputText('', k='имя', font=winfont)],
+        [win.Text('Отчество', font=winfont),
+         win.InputText('', k='отч', font=winfont)],
+        [win.Text('Номер телефона', font=winfont),
+         win.InputText('', k='тел', font=winfont)],
+        [win.Text('Адрес', font=winfont),
+         win.InputText('', k='адрес', font=winfont)],
+        [win.Text('Пароль', font=winfont),
+         win.InputText('', k='пароль', font=winfont)],
+
+        [win.Button('Регистрация', font=winfont), win.Button('Назад', font=winfont)]
     ]
 
     winRegistr = win.Window('Регистрация', layout, resizable=True, element_justification='center', finalize=True)
@@ -35,15 +77,24 @@ def makeRegistratuon():
         if event == win.WIN_CLOSED or event == 'Cancel':
             break
         if event == 'Регистрация':
-            val = [str(values['логин']) + ':' +
-                   str(values['пароль']) + ':' +
-                   str(values['фам']) + ':' +
-                   str(values['имя']) + ':' +
-                   str(values['отч']) + ':' +
-                   str(values['тел'])
-                   ]
-            wirteData(val)
+            security = (
+                    str(values['имя'])[0].upper() +
+                    str(values['фам'])[0].upper() +
+                    str(values['фам'])[1::] + ':' +
+                    str(values['пароль'])
+            )
+            userData = (
+                    str(values['фам']) + ':' +
+                    str(values['имя']) + ':' +
+                    str(values['отч']) + ':' +
+                    str(values['тел']) + ':' +
+                    str(values['адрес'])
+            )
+            if writeData(security, userData):
+                winRegistr.close()
+                WUser.makeWindow(security)
+
         if event == 'Назад':
             winRegistr.close()
-            WLogin.makeLogin()
+            WLogin.makeWindow()
     winRegistr.close()
