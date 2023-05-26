@@ -1,5 +1,6 @@
 import PySimpleGUI as win
 import pandas as pd
+import resourses.Udata as udata
 import numpy as np
 import WFont
 
@@ -7,52 +8,36 @@ win.theme(WFont.theme)
 winfont = WFont.winfont
 
 
-def wirteData(val):
-    f = open('resourses/usersLogin.txt', 'r', encoding="UTF-8")
-    f.writelines(val[0])
-    f.close()
+def makeTable(sheet):
+    headers = udata.getTable(sheet)[0]
+    data = udata.getTable(sheet)[1]
 
-
-def getData(security):
-    f = open('resourses/usersData.txt', encoding="UTF-8")
-    data = f.readlines()
-    f.close()
-    for i in data:
-        if i.removesuffix('\n').split('+')[0] == security:
-            return i.removesuffix('\n').split('+')[1]
-
-
-def getTable():
-    excel_file_df = pd.read_excel('resourses/Table.xlsx')
-    headers = excel_file_df.columns.to_numpy().tolist()
-    data_array = excel_file_df.to_numpy().tolist()
-    # ndarray
     return win.Table(
-        values=data_array,
+        values=data,
         headings=headers,
         display_row_numbers=True,
         max_col_width=35,
         auto_size_columns=True,
         justification='right',
         num_rows=10,
-        key='-TABLE-',
+        key='-table-',
         row_height=35,
-        tooltip="Grades Table"
     )
 
 
-def makeWindow(security: str):
-    #  win.FileBrowse(file_types=(("Image Files", ("*.jpg", "*.png")),), key="-Img-")
+def makeWindow(security):
+    headers: list = udata.getTable('login')[0]
+    userNum = udata.findUsernum(security)
+    userData = udata.getTable('login')[1][userNum]
+    login = str(userData[headers.index('login')])
+    password = str(userData[headers.index('password')])
 
-    userData = getData(security).split(':')
-    login = security.split(':')[0]
-    password = security.split(':')[1]
-
-    firstname = userData[0]
-    name = userData[1]
-    lastname = userData[2]
-    phone = userData[3]
-    address = userData[4]
+    firstname = str(userData[headers.index('firstname')])
+    name = str(userData[headers.index('name')])
+    lastname = str(userData[headers.index('lastname')])
+    phone = str(userData[headers.index('phone')])
+    adress = str(userData[headers.index('adress')])
+    role = str(userData[headers.index('role')])
 
     tabProfile = win.Tab('Профиль', [
         [
@@ -61,7 +46,8 @@ def makeWindow(security: str):
                 [win.Text(text='Фамилия: ' + firstname, font=winfont)],
                 [win.Text(text='Имя: ' + name, font=winfont)],
                 [win.Text(text='Отчество: ' + lastname, font=winfont)],
-                [win.Text(text='Номер телефона: ' + phone, font=winfont)]]
+                [win.Text(text='Номер телефона: ' + phone, font=winfont)],
+                [win.Text(text='Роль: ' + role, font=winfont)]]
                       ),
             win.Image(filename='resourses/profileImage.png', key="profileImage", size=(300, 300))
         ]
@@ -75,11 +61,11 @@ def makeWindow(security: str):
 
     tabTable = win.Tab('Рассписание', [
         [
-            getTable()
+            makeTable('table')
         ]
     ])
     layout = [[
-        win.TabGroup([[tabGroup, tabProfile,tabTable]])]
+        win.TabGroup([[tabProfile, tabGroup, tabTable]])]
     ]
 
     winUser = win.Window('Профиль', layout=layout, resizable=True, element_justification='center', finalize=True)

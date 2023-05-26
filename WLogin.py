@@ -1,5 +1,5 @@
 import PySimpleGUI as win
-
+import resourses.Udata as udata
 import WFont
 import WUser
 
@@ -8,19 +8,16 @@ winfont = WFont.winfont
 import WRegistration
 
 
-def checkLogin(val):
-    f = open('resourses/usersData.txt', encoding="UTF-8")
-    data = f.readlines()
-    f.close()
-    securityData = []
-    for i in data:
-        i = i.removesuffix('\n').split('+')
-        securityData.append(i[0])
+def checkLogin(security):
+    headers: list = udata.getTable('login')[0]
+    data: list = udata.getTable('login')[1]
 
-    if val in securityData:
-        return True
-    else:
-        return False
+    for i in data:
+        login = str(i[headers.index('login')])
+        password = str(i[headers.index('password')])
+        if login == security[0] and password == security[1]:
+            return True
+    return False
 
 
 def makeWindow():
@@ -40,7 +37,7 @@ def makeWindow():
             break
         if event == 'Логин':
 
-            val = str(values['логин']) + ':' + str(values['пароль'])
+            val = [str(values['логин']), str(values['пароль'])]
             if checkLogin(val):
                 winLogin.close()
                 WUser.makeWindow(val)
