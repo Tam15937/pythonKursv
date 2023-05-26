@@ -1,8 +1,9 @@
 import PySimpleGUI as win
-
+import pandas as pd
+import numpy as np
 import WFont
 
-win.theme('DarkAmber')
+win.theme(WFont.theme)
 winfont = WFont.winfont
 
 
@@ -21,6 +22,25 @@ def getData(security):
             return i.removesuffix('\n').split('+')[1]
 
 
+def getTable():
+    excel_file_df = pd.read_excel('resourses/Table.xlsx')
+    headers = excel_file_df.columns.to_numpy().tolist()
+    data_array = excel_file_df.to_numpy().tolist()
+    # ndarray
+    return win.Table(
+        values=data_array,
+        headings=headers,
+        display_row_numbers=True,
+        max_col_width=35,
+        auto_size_columns=True,
+        justification='right',
+        num_rows=10,
+        key='-TABLE-',
+        row_height=35,
+        tooltip="Grades Table"
+    )
+
+
 def makeWindow(security: str):
     #  win.FileBrowse(file_types=(("Image Files", ("*.jpg", "*.png")),), key="-Img-")
 
@@ -34,8 +54,7 @@ def makeWindow(security: str):
     phone = userData[3]
     address = userData[4]
 
-
-    layout = [
+    tabProfile = win.Tab('Профиль', [
         [
             win.Frame(title='Пользователь', layout=[
                 [win.Text(text='Логин: ' + login, font=winfont)],
@@ -46,9 +65,24 @@ def makeWindow(security: str):
                       ),
             win.Image(filename='resourses/profileImage.png', key="profileImage", size=(300, 300))
         ]
+    ])
+
+    tabGroup = win.Tab('Группа', [
+        [
+            win.Image(filename='resourses/profileImage.png', key="profileImage", size=(300, 300))
+        ]
+    ])
+
+    tabTable = win.Tab('Рассписание', [
+        [
+            getTable()
+        ]
+    ])
+    layout = [[
+        win.TabGroup([[tabGroup, tabProfile,tabTable]])]
     ]
 
-    winUser = win.Window('Профиль', layout, resizable=True, element_justification='center', finalize=True)
+    winUser = win.Window('Профиль', layout=layout, resizable=True, element_justification='center', finalize=True)
 
     while True:
         event, values = winUser.read()

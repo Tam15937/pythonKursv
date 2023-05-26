@@ -3,7 +3,7 @@ import PySimpleGUI as win
 import WFont
 import WUser
 
-win.theme('DarkAmber')
+win.theme(WFont.theme)
 winfont = WFont.winfont
 import WRegistration
 

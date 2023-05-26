@@ -4,7 +4,7 @@ import WFont
 import WLogin
 import WUser
 
-win.theme('DarkAmber')
+win.theme(WFont.theme)
 winfont = WFont.winfont
 
 
@@ -54,22 +54,24 @@ def writeData(security, userData):
 
 
 def makeWindow():
+    winputinsize = 20
+    wintextsize = 15
     layout = [
-        [win.Text('Фамилия', font=winfont, expand_x=True, expand_y=True), win.InputText('', k='фам', font=winfont)],
-        [win.Text('Имя', font=winfont),
-         win.InputText('', k='имя', font=winfont)],
-        [win.Text('Отчество', font=winfont),
-         win.InputText('', k='отч', font=winfont)],
-        [win.Text('Номер телефона', font=winfont),
-         win.InputText('', k='тел', font=winfont)],
-        [win.Text('Адрес', font=winfont),
-         win.InputText('', k='адрес', font=winfont)],
-        [win.Text('Пароль', font=winfont),
-         win.InputText('', k='пароль', font=winfont)],
+        [win.Text('Фамилия', font=winfont,size=wintextsize),
+         win.InputText('', k='фам', font=winfont, size=winputinsize)],
+        [win.Text('Имя', font=winfont,size=wintextsize),
+         win.InputText('', k='имя', font=winfont, size=winputinsize)],
+        [win.Text('Отчество', font=winfont,size=wintextsize),
+         win.InputText('', k='отч', font=winfont, size=winputinsize)],
+        [win.Text('Номер телефона', font=winfont,size=wintextsize),
+         win.InputText('', k='тел', font=winfont, size=winputinsize)],
+        [win.Text('Адрес', font=winfont,size=wintextsize),
+         win.InputText('', k='адрес', font=winfont, size=winputinsize)],
+        [win.Text('Пароль', font=winfont,size=wintextsize),
+         win.InputText('', k='пароль', font=winfont, size=winputinsize)],
 
         [win.Button('Регистрация', font=winfont), win.Button('Назад', font=winfont)]
     ]
-
     winRegistr = win.Window('Регистрация', layout, resizable=True, element_justification='center', finalize=True)
 
     while True:
